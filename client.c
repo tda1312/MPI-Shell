@@ -7,7 +7,7 @@ int main( int argc, char **argv ){
 	MPI_Comm server;
 	char port_name[MPI_MAX_PORT_NAME];
 	int j, tag;
-	char text[100];
+	char text[1000];
 
 	if (argc < 2) {
 		fprintf(stderr, "server port name required.\n");
@@ -21,12 +21,9 @@ int main( int argc, char **argv ){
 	while (1) {
 		int n;
 		printf(">client: ");
-		scanf("%s", &text);
-		// for (j = 0; j < n; j++) {
-		// 	tag = 2; /* Action to perform */
-		// 	MPI_Send(&j, 1, MPI_INT, 0, tag, server);
-		// }
-		MPI_Send(&text, 1, MPI_CHAR, 0, tag, server);
+		scanf("%[^\n]%*c", text);
+		tag = 2;
+		MPI_Send(&text, strlen(text) + 1, MPI_CHAR, 0, tag, server);
 	}
 
 	// MPI_Send(&i, 0, MPI_INT, 0, 1, server);

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "mpi.h"
 
 int main(int argc, char **argv){
@@ -23,7 +24,7 @@ int main(int argc, char **argv){
 		again = 1;
 		while (again) {
 			// MPI_Recv(&i, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, client, &status);
-			MPI_Recv(&text, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, client, &status);
+			MPI_Recv(&text, 1000, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, client, &status);
 			switch (status.MPI_TAG) {
 			case 0:
 				MPI_Comm_free(&client);
