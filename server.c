@@ -12,6 +12,8 @@ int main(int argc, char **argv){
 	char port_name[MPI_MAX_PORT_NAME];
 	int size, again;
 	char text[100];
+	char path[1035]; 
+	FILE *fp;
 
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -41,10 +43,23 @@ int main(int argc, char **argv){
 			case 2: // server job here
 				printf(">server: %s\n", text);
 
-				// Server sends back 
+				// Server run command 
 				char result[100] = "success: ";
 				strcat(result, text);
-				system(text);
+				// system(text);
+
+				fp = popen(text, "r");
+
+				/* Read the output a line at a time - output it. */
+				while (fgets(path, sizeof(path), fp) != NULL) {
+    				printf("%s", path);
+					MPI_Send(&path, strlen(path) + 1, MPI_CHAR, 0, TAG_SERVER_RESULT, client);
+  				}
+
+  				/* close */
+  				pclose(fp);
+
+				// Server send output
 				MPI_Send(&result, strlen(result) + 1, MPI_CHAR, 0, TAG_SERVER_RESULT, client);
 				break;
 			default:
