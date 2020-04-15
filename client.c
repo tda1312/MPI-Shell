@@ -3,11 +3,15 @@
 #include <string.h>
 #include "mpi.h"
 
+#define TAG_CLIENT_MESSAGE 2
+#define TAG_SERVER_RESULT 3
+
 int main( int argc, char **argv ){
 	MPI_Comm server;
+	MPI_Status status;
 	char port_name[MPI_MAX_PORT_NAME];
-	int j, tag;
 	char text[1000];
+	char result[1000];
 
 	if (argc < 2) {
 		fprintf(stderr, "server port name required.\n");
@@ -19,11 +23,15 @@ int main( int argc, char **argv ){
 	MPI_Comm_connect(port_name, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &server);
 	
 	while (1) {
-		int n;
 		printf(">client: ");
 		scanf("%[^\n]%*c", text);
-		tag = 2;
-		MPI_Send(&text, strlen(text) + 1, MPI_CHAR, 0, tag, server);
+
+		// Client sends here
+		MPI_Send(&text, strlen(text) + 1, MPI_CHAR, 0, TAG_CLIENT_MESSAGE, server);
+
+		// Client receives here
+		MPI_Recv(&result, 1000, MPI_CHAR, MPI_ANY_SOURCE, TAG_SERVER_RESULT, server, MPI_STATUS_IGNORE);
+		printf("Server sent: \n%s\n", result);
 	}
 
 	// MPI_Send(&i, 0, MPI_INT, 0, 1, server);

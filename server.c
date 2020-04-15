@@ -3,11 +3,14 @@
 #include <string.h>
 #include "mpi.h"
 
+#define TAG_CLIENT_MESSAGE 2
+#define TAG_SERVER_RESULT 3
+
 int main(int argc, char **argv){
 	MPI_Comm client;
 	MPI_Status status;
 	char port_name[MPI_MAX_PORT_NAME];
-	int size, again, i;
+	int size, again;
 	char text[100];
 
 	MPI_Init(&argc, &argv);
@@ -23,8 +26,9 @@ int main(int argc, char **argv){
 		MPI_Comm_accept(port_name, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &client);
 		again = 1;
 		while (again) {
+			// Server receives here
 			// MPI_Recv(&i, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, client, &status);
-			MPI_Recv(&text, 1000, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, client, &status);
+			MPI_Recv(&text, 1000, MPI_CHAR, MPI_ANY_SOURCE, TAG_CLIENT_MESSAGE, client, &status);
 			switch (status.MPI_TAG) {
 			case 0:
 				MPI_Comm_free(&client);
@@ -35,9 +39,13 @@ int main(int argc, char **argv){
 				MPI_Comm_disconnect(&client);
 				again = 0;
 				break;
-			case 2: /* do something */
-				// printf("Received: %d\n", i);
+			case 2: // server job here
 				printf("Received: %s\n", text);
+
+				// Server sends back 
+				char result[100] = "success: ";
+				strcat(result, text);
+				MPI_Send(&result, strlen(result) + 1, MPI_CHAR, 0, TAG_SERVER_RESULT, client);
 				break;
 			default:
 				/* Unexpected message type */
