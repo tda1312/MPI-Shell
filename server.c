@@ -27,7 +27,6 @@ int main(int argc, char **argv){
 		again = 1;
 		while (again) {
 			// Server receives here
-			// MPI_Recv(&i, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, client, &status);
 			MPI_Recv(&text, 1000, MPI_CHAR, MPI_ANY_SOURCE, TAG_CLIENT_MESSAGE, client, &status);
 			switch (status.MPI_TAG) {
 			case 0:
@@ -40,11 +39,12 @@ int main(int argc, char **argv){
 				again = 0;
 				break;
 			case 2: // server job here
-				printf("Received: %s\n", text);
+				printf(">server: %s\n", text);
 
 				// Server sends back 
 				char result[100] = "success: ";
 				strcat(result, text);
+				system(text);
 				MPI_Send(&result, strlen(result) + 1, MPI_CHAR, 0, TAG_SERVER_RESULT, client);
 				break;
 			default:

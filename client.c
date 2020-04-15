@@ -19,7 +19,7 @@ int main( int argc, char **argv ){
 	}
 
 	MPI_Init(&argc, &argv);
-	strcpy(port_name, argv[1]); /* assume server's name is cmd-line arg */
+	strcpy(port_name, argv[1]); 
 	MPI_Comm_connect(port_name, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &server);
 	
 	while (1) {
@@ -34,7 +34,6 @@ int main( int argc, char **argv ){
 		printf("Server sent: \n%s\n", result);
 	}
 
-	// MPI_Send(&i, 0, MPI_INT, 0, 1, server);
 	MPI_Comm_disconnect(&server);
 	MPI_Finalize();
 	return 0;
