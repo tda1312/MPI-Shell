@@ -46,6 +46,7 @@ int main(int argc, char **argv){
 				// Server run command 
 				char result[100] = "success: ";
 				strcat(result, text);
+				char phuong[1000] = "";
 				// system(text);
 
 				fp = popen(text, "r");
@@ -53,14 +54,15 @@ int main(int argc, char **argv){
 				/* Read the output a line at a time - output it. */
 				while (fgets(path, sizeof(path), fp) != NULL) {
     				printf("%s", path);
-					MPI_Send(&path, strlen(path) + 1, MPI_CHAR, 0, TAG_SERVER_RESULT, client);
+					strcat(phuong, path);
   				}
+				MPI_Send(&phuong, strlen(phuong) + 1, MPI_CHAR, 0, TAG_SERVER_RESULT, client);
 
   				/* close */
   				pclose(fp);
 
 				// Server send output
-				MPI_Send(&result, strlen(result) + 1, MPI_CHAR, 0, TAG_SERVER_RESULT, client);
+				// MPI_Send(&result, strlen(result) + 1, MPI_CHAR, 0, TAG_SERVER_RESULT, client);
 				break;
 			default:
 				/* Unexpected message type */
