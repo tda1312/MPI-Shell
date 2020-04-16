@@ -31,7 +31,6 @@ int main(int argc, char **argv){
 		while (again) {
 			// Server receives here
 			MPI_Recv(&text, SIZE_RESULT, MPI_CHAR, MPI_ANY_SOURCE, TAG_CLIENT_MESSAGE, client, &status);
-			printf("Tag is %d", status.MPI_TAG);
 			switch (status.MPI_TAG) {
 			case 0:
 				MPI_Comm_free(&client);
@@ -40,7 +39,7 @@ int main(int argc, char **argv){
 				return 0;
 			case 1:
 				MPI_Comm_disconnect(&client);
-				// again = 0;
+				again = 0;
 				break;
 			case 2: // server job here
 				printf(">server: %s\n", text);
@@ -55,7 +54,7 @@ int main(int argc, char **argv){
 					strcat(result, path);
   				}
 				
-				// Server send output
+				// Server send output to client
 				MPI_Send(&result, strlen(result) + 1, MPI_CHAR, 0, TAG_SERVER_RESULT, client);
 
   				// Close fp
@@ -63,7 +62,7 @@ int main(int argc, char **argv){
 
 				break;
 			default:
-				/* Unexpected message type */
+				// Unexpected message type
 				MPI_Abort(MPI_COMM_WORLD, 1);
 			}
 		}
