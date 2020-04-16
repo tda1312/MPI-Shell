@@ -7,15 +7,7 @@
 #define TAG_SERVER_RESULT 3
 #define SIZE_RESULT 1024
 
-int main(int argc, char **argv){
-	MPI_Comm client;
-	MPI_Status status;
-	char port_name[MPI_MAX_PORT_NAME];
-	int size, again;
-	char text[SIZE_RESULT];
-	char path[SIZE_RESULT]; 
-	FILE *fp;
-
+void initMPI(int argc, char **argv, MPI_Comm* client, MPI_Status* status, int size, char port_name[MPI_MAX_PORT_NAME]) {
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	if (size != 1) {
@@ -25,6 +17,19 @@ int main(int argc, char **argv){
 
 	MPI_Open_port(MPI_INFO_NULL, port_name);
 	printf("Server available at port: %s\n", port_name);
+}
+
+int main(int argc, char **argv){
+	MPI_Comm client;
+	MPI_Status status;
+	char port_name[MPI_MAX_PORT_NAME];
+	int size, again;
+	char text[SIZE_RESULT];
+	char path[SIZE_RESULT]; 
+	FILE *fp;
+
+	initMPI(argc, argv, &client, &status, size, port_name);
+	
 	while (1) {
 		MPI_Comm_accept(port_name, MPI_INFO_NULL, 0, MPI_COMM_WORLD, &client);
 		again = 1;
