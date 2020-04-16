@@ -5,14 +5,15 @@
 
 #define TAG_CLIENT_MESSAGE 2
 #define TAG_SERVER_RESULT 3
+#define SIZE_RESULT 1024
 
 int main(int argc, char **argv){
 	MPI_Comm client;
 	MPI_Status status;
 	char port_name[MPI_MAX_PORT_NAME];
 	int size, again;
-	char text[100];
-	char path[1035]; 
+	char text[SIZE_RESULT];
+	char path[SIZE_RESULT]; 
 	FILE *fp;
 
 	MPI_Init(&argc, &argv);
@@ -29,7 +30,8 @@ int main(int argc, char **argv){
 		again = 1;
 		while (again) {
 			// Server receives here
-			MPI_Recv(&text, 1000, MPI_CHAR, MPI_ANY_SOURCE, TAG_CLIENT_MESSAGE, client, &status);
+			MPI_Recv(&text, SIZE_RESULT, MPI_CHAR, MPI_ANY_SOURCE, TAG_CLIENT_MESSAGE, client, &status);
+			printf("Tag is %d", status.MPI_TAG);
 			switch (status.MPI_TAG) {
 			case 0:
 				MPI_Comm_free(&client);
@@ -38,31 +40,27 @@ int main(int argc, char **argv){
 				return 0;
 			case 1:
 				MPI_Comm_disconnect(&client);
-				again = 0;
+				// again = 0;
 				break;
 			case 2: // server job here
 				printf(">server: %s\n", text);
 
 				// Server run command 
-				char result[100] = "success: ";
-				strcat(result, text);
-				char phuong[1000] = "";
-				// system(text);
-
+				char result[SIZE_RESULT] = "";
 				fp = popen(text, "r");
 
-				/* Read the output a line at a time - output it. */
+				// Read the output a line at a time - output it
 				while (fgets(path, sizeof(path), fp) != NULL) {
     				printf("%s", path);
-					strcat(phuong, path);
+					strcat(result, path);
   				}
-				MPI_Send(&phuong, strlen(phuong) + 1, MPI_CHAR, 0, TAG_SERVER_RESULT, client);
+				
+				// Server send output
+				MPI_Send(&result, strlen(result) + 1, MPI_CHAR, 0, TAG_SERVER_RESULT, client);
 
-  				/* close */
+  				// Close fp
   				pclose(fp);
 
-				// Server send output
-				// MPI_Send(&result, strlen(result) + 1, MPI_CHAR, 0, TAG_SERVER_RESULT, client);
 				break;
 			default:
 				/* Unexpected message type */
